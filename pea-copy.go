@@ -119,15 +119,20 @@ func main() {
 	//r.POST("/submit", submitHandler)
 	r.POST("/submit", func(c *gin.Context) {
 		textInput := c.PostForm("text")
+		log.Println("Get Input Text: ", textInput)
 
 		file, handler, err := c.Request.FormFile("file")
 		var filePath string
+		var fileName string
+		var downloadPath string
 		if err != nil {
 			log.Println("Get Post FormFile error: ", err)
 		} else if err == nil {
 			defer file.Close()
 
-			filePath = filepath.Join(uploadPath, handler.Filename)
+			fileName = handler.Filename
+			filePath = filepath.Join(uploadPath, fileName)
+			log.Println("saved filePath: ", filePath)
 			out, err := os.Create(filePath)
 			if err != nil {
 				c.String(http.StatusInternalServerError, err.Error())
@@ -143,7 +148,9 @@ func main() {
 		}
 
 		//submitTime := time.Now()
-		downloadPath := filepath.Join("download", handler.Filename)
+		if fileName != "" {
+			downloadPath = filepath.Join("download", fileName)
+		}
 		err = InsertSubmission(textInput, downloadPath)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
