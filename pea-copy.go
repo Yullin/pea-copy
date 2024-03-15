@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -23,6 +24,7 @@ var (
 	uploadPath string = "./uploads"
 	dbPath     string = "./submissions.db"
 )
+var port = flag.String("port", "8080", "server port")
 
 type Submission struct {
 	ID         int
@@ -100,6 +102,7 @@ func QuerySubmissions() ([]Submission, error) {
 }
 
 func main() {
+	flag.Parse()
 	if _, err := os.Stat(uploadPath); os.IsNotExist(err) {
 		// 目录不存在，创建目录
 		err := os.MkdirAll(uploadPath, os.ModePerm)
@@ -180,5 +183,5 @@ func main() {
 		c.File(file)
 	})
 
-	r.Run(":8080")
+	r.Run(":" + *port)
 }
